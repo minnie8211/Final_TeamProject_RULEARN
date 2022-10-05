@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="studyBoardMapper">
+	<select id="getNextSeq" resultType="_int">
+		SELECT STUDY_BOARD_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<!-- 전체 게시판 최신순 -->
+	<select id="selectAll" resultType="studyBoardDto">
+		SELECT SB.SB_BID
+			 , SB.SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB.SB_CATID
+			 , SB.SB_TITLE
+			 , SB.SB_CONTENT
+			 , SB.SB_LIKE
+			 , SB.SB_ISDONE
+			 , SB.SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		  FROM STUDY_BOARD SB
+		  JOIN ACCOUNT A
+		    ON SB.SB_WID = A.AC_ID
+		 ORDER BY SB_BID DESC
+	</select>
+
+	<select id="selectAllSort" resultType="studyBoardDto">
+		SELECT SB_BID
+			 , SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB_CATID
+			 , SB_TITLE
+			 , SB_CONTENT
+			 , SB_LIKE
+			 , SB_ISDONE
+			 , SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		  FROM STUDY_BOARD SB
+		  JOIN ACCOUNT A
+		    ON SB.SB_WID = A.AC_ID
+		 <choose>
+			<when test='sort.equals("as_reply")'>
+				ORDER BY total_reply DESC , SB_BID DESC
+			</when>
+			<when test='sort.equals("as_likes")'>
+				ORDER BY SB_LIKE DESC, SB_BID DESC
+			</when>
+			<otherwise>
+				ORDER BY SB.SB_BID DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 하나의 게시글만 조회 -->
+	<select id="selectData" resultType="studyBoardDto">
+		SELECT SB.SB_BID
+			 , SB.SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB.SB_CATID
+			 , SB.SB_TITLE
+			 , SB.SB_CONTENT
+			 , SB.SB_LIKE
+			 , SB.SB_ISDONE
+			 , SB.SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		  FROM STUDY_BOARD SB
+		  JOIN ACCOUNT A
+		    ON SB.SB_WID = A.AC_ID
+		 WHERE SB_BID = #{id}
+	</select>
+	 
+	<select id="selectCatSort" parameterType="map" resultType="studyBoardDto">
+		SELECT SB_BID
+			 , SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB_CATID
+			 , SB_TITLE
+			 , SB_CONTENT
+			 , SB_LIKE
+			 , SB_ISDONE
+			 , SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		 FROM STUDY_BOARD SB
+		 JOIN ACCOUNT A
+		   ON SB.SB_WID = A.AC_ID
+		WHERE SB.SB_CATID = #{catId}
+		<choose>
+			<when test="sort == 1">
+				ORDER BY total_reply DESC , SB_BID DESC
+			</when>
+			<when test="sort == 2">
+				ORDER BY SB_LIKE DESC, SB_BID DESC
+			</when>
+			<otherwise>
+				ORDER BY SB.SB_BID DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="selectDoneSort" parameterType="map" resultType="studyBoardDto">
+		SELECT SB_BID
+			 , SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB_CATID
+			 , SB_TITLE
+			 , SB_CONTENT
+			 , SB_LIKE
+			 , SB_ISDONE
+			 , SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		 FROM STUDY_BOARD SB
+		 JOIN ACCOUNT A
+		   ON SB.SB_WID = A.AC_ID
+		<choose>
+			<when test="isDone == 1">
+				 WHERE SB.SB_ISDONE = 'Y'
+			</when>
+			<otherwise>
+				 WHERE SB.SB_ISDONE = 'N'
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="sort == 1">
+				ORDER BY total_reply DESC , SB_BID DESC
+			</when>
+			<when test="sort == 2">
+				ORDER BY SB_LIKE DESC, SB_BID DESC
+			</when>
+			<otherwise>
+				ORDER BY SB.SB_BID DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insertData" parameterType="studyBoardDto">
+		INSERT INTO STUDY_BOARD(SB_BID, SB_WID, SB_CATID, SB_TITLE
+								, SB_CONTENT, SB_LIKE, SB_ISDONE, SB_DATE)
+			VALUES(#{sb_bId}, #{sb_wId}, #{sb_catId}, #{sb_title}
+					, #{sb_content}
+					, 0
+					, 	<choose>
+							<when test="sb_isDone">
+								'Y'
+							</when>
+							<otherwise>
+								'N'
+							</otherwise>
+						</choose>
+					, SYSDATE)
+	</insert>
+	  
+	<select id="selectSearch" resultType="studyBoardDto">
+		SELECT SB.SB_BID
+			 , SB.SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB.SB_CATID
+			 , SB.SB_TITLE
+			 , SB.SB_CONTENT
+			 , SB.SB_LIKE
+			 , SB.SB_ISDONE
+			 , SB.SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		 FROM STUDY_BOARD SB
+		 JOIN ACCOUNT A
+		   ON SB.SB_WID = A.AC_ID
+		WHERE SB_TITLE LIKE '%' || #{search} || '%' OR
+			  SB_CONTENT LIKE '%' || #{search} || '%' OR
+			  AC_NICKNAME LIKE '%' || #{search} || '%'
+	    <choose>
+			<when test='sort.equals("as_reply")'>
+				ORDER BY total_reply DESC , SB_BID DESC
+			</when>
+			<when test='sort.equals("as_likes")'>
+				ORDER BY SB_LIKE DESC, SB_BID DESC
+			</when>
+			<otherwise>
+				ORDER BY SB.SB_BID DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="updateData" parameterType="studyBoardDto">
+		UPDATE STUDY_BOARD
+		   SET SB_TITLE = #{sb_title}
+		     , SB_CONTENT = #{sb_content}
+		     , SB_CATID = #{sb_catId}
+		     , 	<choose>
+					<when test="sb_isDone">
+						SB_ISDONE = 'Y'
+					</when>
+					<otherwise>
+						SB_ISDONE = 'N'
+					</otherwise>
+				</choose>
+		 WHERE SB_BID = #{sb_bId}
+	</update>
+	
+	<delete id="deleteData">
+		DELETE FROM STUDY_BOARD
+		 WHERE SB_BID = #{sb_bId}
+	</delete>
+	
+	<select id="selectStatics" parameterType="studyBoardStaticsDto" resultType="studyBoardStaticsDto">
+		SELECT SBS_ID
+			 , SBS_WID
+			 , SBS_BID
+			 , SBS_LIKED
+		  FROM STUDY_BOARD_STATICS
+		 WHERE SBS_WID = #{sbs_wId}
+		   AND SBS_BID = #{sbs_bId}
+	</select>
+	
+	<insert id="insertStatics" parameterType="studyBoardStaticsDto">
+		INSERT INTO STUDY_BOARD_STATICS
+			VALUES(STUDY_BOARD_STATICS_SEQ.NEXTVAL
+				 , #{sbs_wId}, #{sbs_bId}, 'Y')
+	</insert>
+	
+	<update id="updateStaticsLike" parameterType="studyBoardStaticsDto">
+		UPDATE STUDY_BOARD_STATICS
+		<choose>
+			<when test="sbs_liked">
+				SET SBS_LIKED = 'Y'
+			</when>
+			<otherwise>
+				SET SBS_LIKED = 'N'
+			</otherwise>
+		</choose>
+		 WHERE SBS_ID = #{sbs_id}
+	</update>
+	
+	<update id="updateLike" parameterType="studyBoardDto">
+		UPDATE STUDY_BOARD
+		   SET SB_LIKE = #{sb_like}
+		 WHERE SB_BID = #{sb_bId}
+	</update>
+	
+	<delete id="deleteStaticsData">
+		DELETE FROM STUDY_BOARD_STATICS
+		 WHERE SBS_BID = #{sbs_bId}
+	</delete>
+	
+	<select id="myPageselectCatData" parameterType="Map" resultType="studyBoardDto">
+		SELECT SB.SB_BID
+			 , SB.SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB.SB_CATID
+			 , SB.SB_TITLE
+			 , SB.SB_CONTENT
+			 , SB.SB_LIKE
+			 , SB.SB_ISDONE
+			 , SB.SB_DATE
+		  FROM STUDY_BOARD SB
+		  JOIN ACCOUNT A
+		    ON SB.SB_WID = A.AC_ID
+		 WHERE SB.SB_CATID = #{CATEGORY}
+		   AND SB.SB_WID = #{ID}
+		 ORDER BY SB.SB_BID DESC
+	</select>
+	
+	<select id="selectUserStudyData" resultType="studyBoardDto">
+		SELECT SB.SB_BID
+			 , SB.SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB.SB_CATID
+			 , SB.SB_TITLE
+			 , SB.SB_CONTENT
+			 , SB.SB_LIKE
+			 , SB.SB_ISDONE
+			 , SB.SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		  FROM STUDY_BOARD SB
+		  JOIN ACCOUNT A
+		    ON SB.SB_WID = A.AC_ID
+		 WHERE SB.SB_WID = #{id}
+		 ORDER BY SB_BID DESC
+	</select>
+	
+	<select id="selectBoardList" resultType="studyBoardDto">
+		SELECT SB.SB_BID
+			 , SB.SB_WID
+			 , A.AC_NICKNAME AS sb_wName
+			 , SB.SB_CATID
+			 , SB.SB_TITLE
+			 , SB.SB_CONTENT
+			 , SB.SB_LIKE
+			 , SB.SB_ISDONE
+			 , SB.SB_DATE
+			 , (SELECT COUNT(*) 
+				FROM STUDY_COMMENT SC 
+				WHERE SC.SC_BID = SB.SB_BID ) AS total_reply
+		  FROM STUDY_BOARD SB
+		  JOIN ACCOUNT A
+		    ON SB.SB_WID = A.AC_ID
+		 WHERE SB_BID IN
+			<foreach collection="list" item="item" open="(" close=")" separator=",">
+				 #{item.sc_bId}
+			</foreach>
+		ORDER BY SB_BID DESC
+	</select>
+</mapper>
+
+
+

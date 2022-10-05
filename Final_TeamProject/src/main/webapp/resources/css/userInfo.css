@@ -1,0 +1,59 @@
+@charset "UTF-8";
+
+.info-box1 {
+	width: 100%;
+    height: 15rem;
+    border-style: solid;
+    border-color: lightgray;
+    border-radius: 10px;
+    border-width: 1px;
+    margin-bottom: 2rem;
+}
+
+.info-box2 {
+	border-top-style: solid;
+    border-color: lightgray;
+    border-width: 1px;
+}
+
+.info-img1 {
+	width: 9rem;
+    height: 9rem;
+    margin: 1rem 1rem 1rem 2rem;
+}
+
+.info-img2 {
+	background-image: url("../img/profile/profile2.png"); 
+	width: 100%;
+    height: 100%;
+    background-size: cover;
+}
+
+.info-nick {
+	font-size: 2rem;
+    font-weight: 600;
+    padding: 3rem 0 0;
+}
+
+.info-lenght {
+	font-size: 1.2rem;
+	font-weight: 500;
+}
+
+.info-menu {
+	margin: 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.magin-lf {
+	margin-left: 2rem;
+}
+
+.tap-active {
+	color: #325d88;
+    border-bottom: solid;
+    border-width: 2px;
+    font-weight: 600;
+}
+ 

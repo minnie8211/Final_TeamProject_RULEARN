@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>	
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	<typeAliases>
+		<typeAlias type="com.web.home.account.model.AccountDTO" alias="accountDto" />
+		<typeAlias type="com.web.home.account.model.AgreementDTO" alias="agreementDto" />
+		<typeAlias type="com.web.home.account.model.RolesDTO" alias="rolesDto" />
+		<typeAlias type="com.web.home.mypage.model.WishlistDTO" alias="wishlistDto" />
+		<typeAlias type="com.web.home.mypage.model.AttachImageDTO" alias="AttachImageDto" />
+		<typeAlias type="com.web.home.community.board.model.CommunityBoardDTO" alias="commBoardDto" />
+		<typeAlias type="com.web.home.community.board.model.CommunityBoardStaticsDTO" alias="commBoardStaticsDto" />
+		<typeAlias type="com.web.home.community.comment.model.CommunityCommentDTO" alias="commCommentDto" />
+		<typeAlias type="com.web.home.community.comment.model.CommunityCommentStaticsDTO" alias="commCommentStaticsDto" />
+		<typeAlias type="com.web.home.community.comment.model.CommunityCommentIdDTO" alias="commCommentIdDto" />
+		<typeAlias type="com.web.home.studyboard.model.StudyBoardDTO" alias="studyBoardDto" />
+		<typeAlias type="com.web.home.studyboard.model.StudyBoardStaticsDTO" alias="studyBoardStaticsDto" />
+		<typeAlias type="com.web.home.studyboard.comment.model.StudyCommentDTO" alias="studyCommentDto" /> 
+		<typeAlias type="com.web.home.studyboard.comment.model.StudyCommentStaticsDTO" alias="studyCommentStaticsDto" /> 
+		<typeAlias type="com.web.home.studyboard.comment.model.StudyCommentIdDTO" alias="studyCommentIdDto" /> 
+		<typeAlias type="com.web.home.course.model.CourseDTO" alias="CourseDTO" /> 
+		<typeAlias type="com.web.home.course.model.Curriculum_bigDTO" alias="Curriculum_bigDTO" /> 
+		<typeAlias type="com.web.home.course.model.Curriculum_smallDTO" alias="Curriculum_smallDTO" /> 
+		<typeAlias type="com.web.home.course.model.LessonManagerDTO" alias="LessonManagerDTO" /> 
+		<typeAlias type="com.web.home.course.model.FileInfoDTO" alias="FileInfoDTO" /> 
+		<typeAlias type="com.web.home.course.model.QA_boardDTO" alias="QA_boardDTO" /> 
+		<typeAlias type="com.web.home.course.model.QA_answerDTO" alias="QA_answerDTO" /> 
+		<typeAlias type="com.web.home.course.vo.QnAVO" alias="QnAVO" /> 
+		<typeAlias type="com.web.home.course.model.ReviewDTO" alias="ReviewDTO" /> 
+		<typeAlias type="com.web.home.course.model.ReviewInfoDTO" alias="ReviewInfoDTO" /> 
+		<typeAlias type="com.web.home.payment.model.PaymentDTO" alias="paymentDto" /> 
+	</typeAliases>
+</configuration>

@@ -1,0 +1,6 @@
+@charset "UTF-8";
+
+.card-img-top {
+	height: 15rem;
+	object-fit: cover;
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="myPageMapper">
+	<!-- 회원정보 수정-->
+	<update id="updateAccount" parameterType="accountDto">
+		UPDATE ACCOUNT 
+		   SET AC_PW = #{AC_PW}, 
+		       AC_NICKNAME = #{AC_NICKNAME},
+		       AC_PHONE = #{AC_PHONE}
+		 WHERE AC_ID = #{AC_ID}
+	</update>
+	
+	<!-- 회원탈퇴 -->
+	<delete id="deleteAccount" parameterType="accountDto">
+		DELETE FROM ACCOUNT 
+		 WHERE AC_ID = #{AC_ID} 
+		   AND AC_PW = #{AC_PW}
+ 	</delete>
+	
+	<!-- 패스워드 체크 -->
+	<select id="passChk" resultType="int">
+		SELECT COUNT(*)
+		  FROM ACCOUNT
+		 WHERE AC_ID = #{AC_ID}
+		   AND AC_PW = #{AC_PW_ORIGIN}
+	</select>
+	
+</mapper>

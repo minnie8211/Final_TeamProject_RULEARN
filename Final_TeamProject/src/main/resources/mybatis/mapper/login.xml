@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="loginMapper">
+	<select id="selectLogin" parameterType="accountDto" resultType="accountDto">
+		SELECT *
+		  FROM ACCOUNT
+		 WHERE AC_ID = #{AC_ID}
+		   AND AC_PW = #{AC_PW}
+	</select>
+	<select id="selectId" parameterType="accountDto" resultType="accountDto">
+		SELECT *
+		  FROM ACCOUNT
+		 WHERE AC_NAME = #{AC_NAME}
+		   AND AC_EMAIL = #{AC_EMAIL}
+	</select>
+	<select id="selectLoginInfo" parameterType="accountDto" resultType="accountDto">
+		SELECT *
+		  FROM ACCOUNT
+		 WHERE AC_ID = #{AC_ID}
+		   AND AC_EMAIL = #{AC_EMAIL}
+	</select>
+	<select id="getAccountGroup" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		  FROM ACCOUNT
+		 WHERE AC_ID = #{AC_ID}
+		   AND AC_GROUP = 1
+	</select>
+	<select id="emailAuthFail" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		  FROM ACCOUNT
+		 WHERE AC_ID = #{AC_ID}
+		   AND AC_MAIL_AUTH = 1
+	</select>
+	<update id="updatePassword" parameterType="accountDto">
+		UPDATE ACCOUNT 
+		   SET AC_PW = #{AC_PW}
+		 WHERE AC_ID = #{AC_ID}
+	</update>
+</mapper>

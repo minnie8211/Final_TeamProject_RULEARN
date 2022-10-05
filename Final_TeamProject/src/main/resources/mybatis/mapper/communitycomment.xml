@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="commCommentMapper">
+	<select id="getNextSeq" resultType="_int">
+		SELECT COMMUNITY_COMMENT_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<!-- 식별자로 댓글 조회 -->
+	<select id="selectCommentData" resultType="commCommentDto">
+	SELECT 	CC_ID, CC_WID, CC_BID, CC_GID, CC_SORT, CC_DEPTH, CC_CHILD, CC_PARENTS
+			CC_CONTENT, CC_DELETED, CC_LIKE, CC_DATE,
+			A.AC_NICKNAME AS cc_nickName
+	FROM COMMUNITY_COMMENT CC
+	JOIN ACCOUNT A 
+	ON   CC.CC_WID = A.AC_ID 
+	WHERE CC_ID = #{cc_id}
+	</select>
+	
+	<!-- 게시판 식별자로 해당 댓글들 조회 -->
+	<select id="selectBoardComment" resultType="commCommentDto">
+	SELECT 	CC_ID, 
+			CC_WID,
+			A.AC_NICKNAME AS cc_nickName,
+			CC_BID,
+			CC_GID,
+			CC_SORT,
+			CC_DEPTH,
+			CC_CHILD,
+			CC_PARENTS, 
+			CC_CONTENT, CC_DELETED, CC_LIKE, CC_DATE 
+	FROM COMMUNITY_COMMENT CC
+	JOIN ACCOUNT A 
+	ON   CC.CC_WID = A.AC_ID 
+	WHERE CC_BID = #{cc_bid}
+	ORDER BY CC_GID, CC_SORT
+	</select>
+	
+	<!-- 사용자id로 사용자가 작성한 댓글들 조회 -->
+	<select id="selectUserComment" resultType="commCommentDto">
+	SELECT 	CC_ID, CC_WID, CC_BID, CC_BID, CC_GID, CC_SORT, CC_DEPTH, 
+			CC_CONTENT, CC_DELETED, CC_LIKE, CC_DATE 
+	FROM COMMUNITY_COMMENT
+	WHERE CC_WID = #{cc_wid}
+	</select>
+	
+	<!-- 댓글 추가 -->
+	<insert id="insertCommentData" parameterType="commCommentDto">	
+	INSERT INTO COMMUNITY_COMMENT(CC_ID, CC_WID, CC_BID, CC_GID, CC_SORT, CC_DEPTH, CC_CHILD, CC_PARENTS,
+									CC_CONTENT, CC_DELETED, CC_LIKE, CC_DATE)
+	VALUES (#{cc_id},
+	 		#{cc_wid},
+	 		#{cc_bid},
+	 		#{cc_gid}, #{cc_sort}, #{cc_depth}, #{cc_child}, #{cc_parents},
+	 		#{cc_content}, 'N', 0, SYSDATE)	
+	</insert>
+	
+	<!-- 댓글 내용 수정 -->
+	<update id="updateCommentData" parameterType="commCommentDto">
+		UPDATE COMMUNITY_COMMENT
+		SET CC_CONTENT = #{cc_content}
+		WHERE CC_ID = #{cc_id}
+	</update>
+	
+	<!-- 댓글 추천수 수정 -->
+	<update id="updateCommentLike" parameterType="commCommentDto">
+		UPDATE COMMUNITY_COMMENT
+		SET CC_LIKE = #{cc_like}
+		WHERE CC_ID = #{cc_id}
+	</update>
+	
+	<!-- 댓글 삭제, 특정 컬럼 값 변경 업데이트 처리 -->
+	<update id="removeCommentData" parameterType="commCommentDto">
+		UPDATE COMMUNITY_COMMENT
+		   SET CC_DELETED = 'Y'
+		 WHERE CC_ID = #{cc_id}
+	</update>
+	
+	<!-- 실제 댓글 완전 삭제 필요할까? -->
+	
+	<!-- 댓글 추천 제한 정보 조회 -->
+	<select id="selectCommentStaticsData" parameterType="commCommentStaticsDto"
+		resultType="commCommentStaticsDto">
+		SELECT 	CCS_ID, CCS_WID, CCS_CID, CCS_LIKED				
+		FROM 	COMMUNITY_COMMENT_STATICS
+		WHERE 	CCS_WID = #{ccs_wid} AND CCS_CID = #{ccs_cid} 
+		
+	</select>
+	<!-- 댓글 추천 제한 정보 추가 -->
+	<insert id="insertCommentStaticsData" parameterType="commCommentStaticsDto">
+		INSERT INTO COMMUNITY_COMMENT_STATICS
+		VALUES (COMMUNITY_COMMENT_STATICS_SEQ.NEXTVAL, #{ccs_wid}, #{ccs_cid}, 'Y')
+	</insert>
+	
+	<!-- 추천 제한 정보 삭제(게시판의 모든 댓글 제한 정보) -->
+	<delete id="deleteCommentStaticsData">
+		DELETE FROM COMMUNITY_COMMENT_STATICS
+		WHERE CCS_CID = #{ccs_cid}
+	</delete>
+	
+	<!-- 추천 제한 정보 수정(추천 또는 추천 해제) -->
+	<update id="updateCommentStaticLike" parameterType="commCommentStaticsDto">
+		UPDATE COMMUNITY_COMMENT_STATICS
+		<choose>
+			<when test="ccs_liked">
+				SET CCS_LIKED = 'Y'
+			</when>
+			<otherwise>
+				SET CCS_LIKED = 'N'
+			</otherwise>
+		</choose>
+		WHERE CCS_ID = #{ccs_id}
+	</update>
+	
+	<!-- 마이페이지 전용 댓글 조회 -->
+	<select id="selectCommentDatas" parameterType="_int" resultType="commCommentDto">
+		SELECT CC_ID
+			 , CC_WID
+			 , CC_BID
+			 , CC_GID
+			 , CC_SORT
+			 , CC_DEPTH
+			 , CC_CONTENT
+			 , CC_DELETED
+			 , CC_LIKE
+			 , CC_DATE 
+		  FROM COMMUNITY_COMMENT CC
+		  JOIN COMMUNITY_BOARD CB
+		    ON CC.CC_BID = CB.CB_BID
+		  JOIN CATEGORY C
+		    ON CB.CB_CATID = C.CAT_ID
+		 WHERE C.CAT_ID = #{cat_id}
+	</select>
+	
+	<select id="myPageSelectCommentDatas" parameterType="Map" resultType="commCommentDto">
+		SELECT CC_ID
+			 , CC_WID
+			 , CC_BID
+			 , CC_GID
+			 , CC_SORT
+			 , CC_DEPTH
+			 , CC_CONTENT
+			 , CC_DELETED
+			 , CC_LIKE
+			 , CC_DATE 
+		  FROM COMMUNITY_COMMENT CC
+		  JOIN COMMUNITY_BOARD CB
+		    ON CC.CC_BID = CB.CB_BID
+		  JOIN CATEGORY C
+		    ON CB.CB_CATID = C.CAT_ID
+		 WHERE C.CAT_ID = #{CATEGORY}
+		   AND CC_WID = #{ID}
+	</select>
+	
+	<select id="maxSort" parameterType="_int" resultType="_int">
+		SELECT NVL(MAX(CC_SORT),0) + 1
+		  FROM COMMUNITY_COMMENT
+		 WHERE CC_GID = #{cc_gid}
+	</select>
+	
+	<select id="maxChildSort" resultType="_int">
+		SELECT CC_SORT + CC_CHILD
+		  FROM COMMUNITY_COMMENT
+		 WHERE CC_ID = #{cc_id}
+	</select>
+	
+	<update id="updateCommentSort" parameterType="commCommentDto">
+		UPDATE COMMUNITY_COMMENT
+		   SET CC_SORT = CC_SORT + 1
+		 WHERE CC_GID = #{cc_gid}
+		   AND CC_SORT > #{cc_sort}
+	</update>
+	
+	<select id="totalChild" resultType="_int">
+		SELECT COUNT(*)
+	      FROM COMMUNITY_COMMENT
+	     WHERE CC_PARENTS = #{cc_id}
+	</select>
+	
+	<update id="updateChild" parameterType="commCommentDto">
+		UPDATE COMMUNITY_COMMENT
+		   SET CC_CHILD = #{cc_child}
+		 WHERE CC_ID = #{cc_id}
+	</update>
+	
+	<select id="selectFoldComment" resultType="commCommentDto">
+	SELECT 	CC_ID, CC_WID, CC_BID, CC_GID, CC_SORT, CC_DEPTH, CC_CHILD, CC_PARENTS
+			CC_CONTENT, CC_DELETED, CC_LIKE, CC_DATE,
+			A.AC_NICKNAME AS cc_nickName
+	FROM COMMUNITY_COMMENT CC
+	JOIN ACCOUNT A 
+	ON   CC.CC_WID = A.AC_ID 
+	WHERE CC_GID = #{cc_gid}
+	</select>
+	
+	<!-- 0924추가 -->
+	<select id="selectBoardID" resultType="commCommentIdDto">
+		SELECT DISTINCT
+			   CC_BID
+		FROM   COMMUNITY_COMMENT
+		WHERE  CC_WID = #{cc_wid}
+		AND    CC_DELETED = 'N'
+		ORDER BY CC_BID ASC
+	</select>
+	
+</mapper>

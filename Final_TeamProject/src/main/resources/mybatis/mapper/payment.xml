@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="paymentMapper">
+	<select id="selectPaymentData" resultType="paymentDto">
+		SELECT P_TID, P_ACID, P_ITEM_NAME, P_ITEM_CODE, P_TOTAL_AMOUNT, TO_CHAR(P_APPROVED_AT, 'YYYY-MM-DD HH24:MI:SS')
+		FROM PAYMENT
+		WHERE P_ACID = #{p_acid}
+	</select>
+	
+	<insert id="insertPaymentKaKaoPay" parameterType="paymentDto">
+	INSERT 	INTO PAYMENT(P_TID, P_ACID, P_ITEM_NAME, P_ITEM_CODE, P_TOTAL_AMOUNT, P_APPROVED_AT)
+			VALUES(#{p_tid}, #{p_acid}, #{p_item_name}, #{p_item_code}, #{p_total_amount}, TO_DATE(#{p_approved_at}, 'YYYY-MM-DD HH24:MI:SS'))
+	</insert>
+	
+	<insert id="insertPaymentTossPay" parameterType="paymentDto">
+	INSERT 	INTO PAYMENT(P_TID, P_ACID, P_ITEM_NAME, P_ITEM_CODE, P_TOTAL_AMOUNT, P_APPROVED_AT)
+			VALUES(#{p_tid}, #{p_acid}, #{p_item_name}, #{p_item_code}, #{p_total_amount}, 
+					TO_TIMESTAMP_TZ(#{p_approved_at}, 'YYYY-MM-DD"T"HH24:MI:SSTZH:TZM'))
+	</insert>
+	
+	<delete id="deletePaymentData">
+		DELETE FROM PAYMENT 
+		WHERE P_TID = #{p_tid}
+	</delete>
+
+</mapper>

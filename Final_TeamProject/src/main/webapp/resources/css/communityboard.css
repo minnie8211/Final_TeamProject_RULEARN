@@ -1,0 +1,60 @@
+@charset "UTF-8";
+
+.badge-lg {
+  --bs-badge-padding-x: 0.9em;
+  --bs-badge-padding-y: 0.45em;
+  --bs-badge-font-size: 1em;
+  --bs-badge-font-weight: 700;
+  --bs-badge-color: #fff;
+  --bs-badge-border-radius: 0.75rem;
+  display: inline-block;
+  padding: var(--bs-badge-padding-y) var(--bs-badge-padding-x);
+  font-size: var(--bs-badge-font-size);
+  font-weight: var(--bs-badge-font-weight);
+  line-height: 1;
+  color: var(--bs-badge-color);
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--bs-badge-border-radius);
+}
+
+.comm-cat-qa {
+	color: white;
+	background-color: #0096ff;
+	padding: 1px 30px;
+	font-weight: bold;
+	border-radius: 3px;
+}
+
+.comm-cat-forum {
+	color: white;
+	background-color: #008e00;
+	padding: 1px 14px;
+	font-weight: bold;
+	border-radius: 3px;
+}
+
+.comm-cat-tip {
+	color: white;
+	background-color: #ff9300;
+	padding: 1px 14px;
+	font-weight: bold;
+	border-radius: 3px;
+}
+
+.banner-comm {
+	background-color: #2c4b69;
+	height: 7rem;
+	color: white;
+	font-size: 1.5rem;
+	padding: 1rem 2rem;
+}
+
+
+.no-result{
+	font-size: xx-large;
+	background-color: #eaeaea;
+	font-weight: bold;
+}
+

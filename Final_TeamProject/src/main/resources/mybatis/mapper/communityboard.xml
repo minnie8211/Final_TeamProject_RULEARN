@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="commBoardMapper">
+
+	<!-- 게시판 추가할 때 CB_BID 생성 -->
+	<select id="getNextSeq" resultType="_int">
+		SELECT COMMUNITY_BOARD_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<!-- 게시판 조회 -->
+	<select id="selectBoardData" resultType="commBoardDto">
+		SELECT	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_BID = #{cb_bid}
+	</select>
+	
+	<!-- 사용자id로 해당 유저가 작성한 게시판 조회 -->
+	<select id="selectUserBoard" resultType="commBoardDto">
+		SELECT	CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		WHERE 	CB_WID = #{cb_wid}
+	</select>
+
+	<!-- 모든 게시판 조회(최신순) -->
+	<select id="selectBoardAll" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		ORDER BY CB_BID DESC
+	</select>
+	
+	<!-- 모든 게시판 조회(댓글순) -->
+	<select id="selectBoardOrderByCommentAll" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_CATID BETWEEN 1 AND 3
+		ORDER BY cb_commentNum DESC
+	</select>
+	
+	<!-- 모든 게시판 조회(추천순) -->
+	<select id="selectBoardOrderByLikeAll" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_CATID BETWEEN 1 AND 3
+		ORDER BY CB_LIKE DESC
+	</select>
+	
+	<!-- 카테고리 분류 조회 - 기본적으로 최신순서 -->
+	<select id="selectBoardCategory" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_CATID = #{cb_catid}
+		ORDER 	BY CB_BID DESC
+	</select>
+	
+	<select id="myPageselectBoardCategory" parameterType="Map" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_CATID = #{CATEGORY}
+		  AND   CB_WID = #{ID}
+		ORDER 	BY CB_BID DESC
+	</select>
+	
+	<!-- 추천순서 정렬  -->
+	<select id="selectBoardOrderByLike" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_CATID = #{cb_catid}
+		ORDER 	BY CB_LIKE DESC
+	</select>
+	
+	<!-- 댓글순서 정렬 -->
+	<select id="selectBoardOrderByComment" resultType="commBoardDto">
+		SELECT 	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_CATID = #{cb_catid}
+		ORDER BY cb_commentNum DESC		
+	</select>
+	
+	<!-- 모든 게시글에서 키워드 검색 -->
+	<select id="selectSearchAll" parameterType="map" resultType="commBoardDto" >
+		SELECT (SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE (CB_TITLE LIKE '%' || #{keyword} || '%' OR
+				CB_CONTENT LIKE '%' || #{keyword} || '%' OR 
+				AC_NICKNAME LIKE '%' || #{keyword} || '%')
+				AND (CB_CATID BETWEEN 1 AND 3)
+		<choose>
+			<when test="sort == 'comment'">
+				ORDER BY cb_commentNum DESC
+			</when>
+			<when test="sort == 'like'">
+				ORDER BY CB_LIKE DESC
+			</when>
+			<otherwise>
+				ORDER BY CB_BID DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 카테고리별로 게시글에서 키워드 검색 -->
+	<select id="selectSearchCategory" resultType="commBoardDto" >
+		SELECT (SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE (CB_TITLE LIKE '%' || #{keyword} || '%' OR
+				CB_CONTENT LIKE '%' || #{keyword} || '%' OR 
+				AC_NICKNAME LIKE '%' || #{keyword} || '%')
+				AND (
+				<choose>
+					<when test="catid == 'QA'">
+						CB_CATID = 1
+					</when>
+					<when test="catid == 'FORUM'">
+						CB_CATID = 2
+					</when>
+					<when test="catid == 'TIP'">
+						CB_CATID = 3
+					</when>
+				</choose>
+				)
+			<choose>
+				<when test="sort == 'comment'">
+					ORDER BY cb_commentNum DESC
+				</when>
+				<when test="sort == 'like'">
+					ORDER BY CB_LIKE DESC
+				</when>
+				<otherwise>
+					ORDER BY CB_BID DESC
+				</otherwise>
+			</choose>
+	</select>
+	
+	<!-- 게시글 추가 -->
+	<insert id="insertBoardData" parameterType="commBoardDto">
+	INSERT INTO COMMUNITY_BOARD(CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE)
+	VALUES (#{cb_bid}, #{cb_wid}, #{cb_catid}, #{cb_title}, #{cb_content}, 0, SYSDATE)
+	</insert>
+
+	<!-- 게시글 수정 -->
+	<update id="updateBoardData" parameterType="commBoardDto">
+		UPDATE 	COMMUNITY_BOARD
+		SET 	CB_TITLE = #{cb_title},
+				CB_CONTENT = #{cb_content},
+				CB_CATID = #{cb_catid}
+		WHERE 	CB_BID = #{cb_bid}
+	</update>
+	
+	<!-- 게시판 추천 수 수정 -->
+	<update id="updateBoardLike" parameterType="commBoardDto">
+		UPDATE 	COMMUNITY_BOARD
+		SET		CB_LIKE = #{cb_like}
+		WHERE 	CB_BID = #{cb_bid}
+	</update>
+	
+	<!-- 게시판 삭제 -->
+	<delete id="deleteBoardData">
+		DELETE FROM COMMUNITY_BOARD
+		WHERE CB_BID = #{cb_bid}
+	</delete>
+	
+	<!-- 추천 제한 정보 조회 -->
+	<select id="selectStaticsData" parameterType="commBoardStaticsDto"
+		resultType="commBoardStaticsDto">
+		SELECT 	CBS_ID, CBS_WID, CBS_BID, CBS_LIKED				
+		FROM 	COMMUNITY_BOARD_STATICS
+		WHERE 	CBS_WID = #{cbs_wid} AND CBS_BID = #{cbs_bid}
+	</select>
+	
+	
+	<!-- 추천 제한 정보 추가 -->
+	<insert id="insertStaticsData" parameterType="commBoardStaticsDto">
+		INSERT INTO COMMUNITY_BOARD_STATICS
+		VALUES (COMMUNITY_BOARD_STATICS_SEQ.NEXTVAL, #{cbs_wid}, #{cbs_bid}, 'N')
+	</insert>
+	
+	<!-- 추천 제한 정보 삭제 -->
+	<delete id="deleteStaticsData">
+		DELETE FROM COMMUNITY_BOARD_STATICS
+		WHERE CBS_BID = #{cbs_bid}
+	</delete>
+	
+	<!-- 추천 제한 정보 수정(추천 또는 추천 해제) -->
+	<update id="updateStaticsData" parameterType="commBoardStaticsDto">
+		UPDATE COMMUNITY_BOARD_STATICS
+		<choose>
+			<when test="cbs_liked">
+				SET CBS_LIKED = 'Y'
+			</when>
+			<otherwise>
+				SET CBS_LIKED = 'N'
+			</otherwise>
+		</choose>
+		WHERE CBS_ID = #{cbs_id}
+	</update>
+	
+	<!-- 0924 추가. 사용자 아이디로 게시물 조회 -->
+	<select id="selectUserCommuData" resultType="commBoardDto">
+		SELECT	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_WID = #{id}
+		ORDER BY CB_BID DESC
+	</select>
+	
+	<!-- 0924 추가. 댓글 단 글 조회 -->
+	<select id="selectBoardList" resultType="commBoardDto">
+		SELECT	(SELECT COUNT(*) FROM COMMUNITY_COMMENT CC WHERE CB_BID = CC.CC_BID) AS cb_commentNum,
+				A.AC_NICKNAME AS cb_nickName,
+				CB_BID, CB_WID, CB_CATID, CB_TITLE, CB_CONTENT, CB_LIKE, CB_DATE
+		FROM 	COMMUNITY_BOARD CB
+		JOIN	ACCOUNT A 
+		ON		CB.CB_WID = A.AC_ID 
+		WHERE 	CB_BID IN
+			<foreach collection="list" item="item" open="(" close=")" separator=",">
+				 #{item.cc_bid}
+			</foreach>
+		ORDER BY CB_BID DESC
+	</select>
+
+	<!-- <select id="getCount" resultType="_int"> SELECT COUNT(*) FROM FILEUPLOAD 
+		WHERE BID = #{bId} </select> <insert id="insertData" parameterType="fileUploadDto"> 
+		INSERT INTO FILEUPLOAD VALUES(FILEUPLOAD_SEQ.NEXTVAL, #{bId} , #{fileName}, 
+		#{uuidName} , #{location}, #{url} , #{fileSize}, #{contentType}) </insert> 
+		<select id="selectDatas" resultType="fileUploadDto"> SELECT * FROM FILEUPLOAD 
+		WHERE BID = #{bId} </select> -->
+
+</mapper>

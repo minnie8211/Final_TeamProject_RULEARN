@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="courseMapper">
+
+	<select id="selectAll" resultType="CourseDTO">
+		SELECT * 
+		  FROM LESSON
+		  <choose>
+              <when test='sort.equals("programming")'>
+              	WHERE L_LESSON_CATEGORY = '개발/프로그래밍'
+              </when>
+              <when test='sort.equals("secure/network")'>
+              	WHERE L_LESSON_CATEGORY = '보안/네트워크'
+              </when>
+              <when test='sort.equals("dataScience")'>
+              	WHERE L_LESSON_CATEGORY = '데이터 사이언스'
+              </when>
+              <when test='sort.equals("game")'>
+              	WHERE L_LESSON_CATEGORY = '게임개발'
+              </when>
+              <when test='sort.equals("etc")'>
+              	WHERE L_LESSON_CATEGORY = '기타'
+              </when>
+          </choose>
+		 ORDER BY L_ID
+	</select>
+	
+	<select id="selectLessonData" resultType="CourseDTO">
+		SELECT * 
+		  FROM LESSON 
+		 WHERE L_ID = #{id}
+	</select>
+
+	<select id="selectCurriBigTitle" resultType="Curriculum_bigDTO">
+		SELECT *
+		  FROM CURRICULUM_BIG 
+		 WHERE CUR_BIG_LID = #{id}
+	</select>
+	
+	<select id="selectCurriData" resultType="Curriculum_smallDTO">
+		SELECT * 
+		  FROM CURRICULUM_SMALL 
+		 WHERE CUR_SMALL_LID = #{id}
+	</select>
+	
+	<select id="selectReviewDatas" resultType="ReviewDTO">
+		SELECT * 
+		  FROM REVIEW_BOARD 
+		 WHERE RB_LID = #{id}
+		 ORDER BY 
+		 <choose>
+		 	<when test='sort.equals("latest")'>
+		 		RB_DATE DESC
+		 	</when>
+		 	<when test='sort.equals("highScore")'>
+		 		RB_SCORE DESC
+		 	</when>
+		 	<when test='sort.equals("lowScore")'>
+		 		RB_SCORE ASC
+		 	</when>
+		 </choose>
+	</select>
+	
+	<!-- 리뷰 수정 삭제시 사용 -->
+	<select id="selectReview" resultType="ReviewDTO">
+		SELECT * 
+		  FROM REVIEW_BOARD 
+		 WHERE RB_ID = #{rb_id}
+	</select>
+	
+	<select id="selectReviewHistory" resultType="_int">
+		SELECT COUNT(*)
+		  FROM REVIEW_BOARD 
+		 WHERE RB_LID = #{rb_lid}
+		   AND RB_WID = #{rb_wid}
+	</select>
+		
+	<select id="selectReviewAmount_AVG" resultType="map">
+		SELECT COUNT(*) as amount, 
+			   TRUNC(AVG(RB_SCORE), 1) as avg
+		  FROM REVIEW_BOARD 
+		 WHERE RB_LID = #{id}
+	</select>
+	
+	<select id="selectEachScoreAmount" parameterType="map" resultType="_int">
+		SELECT COUNT(*)
+		  FROM REVIEW_BOARD 
+		 WHERE RB_LID = #{id}
+		   AND RB_SCORE = #{score}
+	</select>
+	
+	<select id="selectEachCourseSort_LID" resultType="ReviewInfoDTO">
+		SELECT L_ID
+		  FROM LESSON 
+		 WHERE L_LESSON_CATEGORY = #{sort}
+	</select>
+	
+	<update id="updateReview">
+		UPDATE REVIEW_BOARD
+		   SET RB_CONTENT = #{rb_content},
+		   	   RB_SCORE = #{rb_score}
+		 WHERE RB_ID = #{rb_id}
+	</update>
+	
+	<delete id="deleteReview">
+		DELETE FROM REVIEW_BOARD
+		 WHERE RB_ID = #{rb_id}
+	</delete>
+	
+	<insert id="insertReview">
+		INSERT INTO REVIEW_BOARD
+		VALUES(REVIEW_BOARD_SEQ.NEXTVAL,
+				#{rb_wid}, #{rb_lid}, #{rb_content}, #{rb_score}, SYSDATE)
+	</insert>
+	
+	
+	<!-- QnA 수정 삭제시 사용 -->
+	<select id="selectQnA" resultType="QA_boardDTO">
+		SELECT * 
+		  FROM QA_BOARD 
+		 WHERE QB_BID = #{id}
+	</select>
+	
+	<select id="selectQnA_answersInLesson" resultType="QnAVO">
+		SELECT 	B.QB_LID,
+			   	B.QB_BID,
+			   	B.QB_WID,
+			   	B.QB_TITLE,
+			   	B.QB_CONTENT,
+			   	B.QB_DATE,
+			   	A.QAA_WID,
+			   	A.QAA_CONTENT,
+			   	A.QAA_DATE 
+		  FROM 	QA_BOARD B
+	 LEFT JOIN 	QA_ANSWER A 
+			ON 	B.QB_LID = A.QAA_LID 
+		   AND 	B.QB_BID = A.QAA_BID
+		 WHERE 	B.QB_LID = #{lid}
+	</select>
+	
+	<select id="selectQA_answerData" resultType="QA_answerDTO">
+		SELECT * 
+		  FROM QA_ANSWER 
+		 WHERE QAA_BID = #{bid}
+	</select>
+	<update id="updateQnA">
+		UPDATE QA_BOARD
+		   SET QB_CONTENT = #{qb_content}
+		 WHERE QB_BID = #{qb_bid}
+		   AND QB_WID = #{qb_wid}
+	</update>
+	
+	<delete id="deleteQnA">
+		DELETE FROM QA_BOARD
+		 WHERE QB_BID = #{bid}
+	</delete>
+		
+	<insert id="insertQnA">
+		INSERT INTO QA_BOARD
+		VALUES(QA_BOARD_SEQ.NEXTVAL,
+				#{qb_wid}, #{qb_lid}, #{qb_title}, #{qb_content}, SYSDATE)
+	</insert>
+	
+	<update id="updateQA_answer">
+		UPDATE QA_ANSWER
+		   SET QAA_CONTENT = #{qaa_content}
+		 WHERE QAA_BID = #{qaa_bid}
+	</update>
+	
+	<delete id="deleteQA_answer">
+		DELETE FROM QA_ANSWER
+		 WHERE QAA_BID = #{bid}
+	</delete>
+	<insert id="insertQA_answer">
+		INSERT INTO QA_ANSWER
+		VALUES(#{qaa_lid}, #{qaa_wid}, #{qaa_bid}, #{qaa_content}, SYSDATE)
+	</insert>
+	
+	<select id="selectHistoryData" parameterType="LessonManagerDTO" resultType="_int">
+		SELECT COUNT(*) 
+		  FROM LESSON_MANAGER
+		 WHERE LM_WID = #{lm_wid}
+		   AND LM_LID = #{lm_lid}
+	</select>
+	
+	<select id="selectLessonList" resultType="CourseDTO">
+		SELECT L.L_ID
+			 , L.L_CATID
+			 , L.L_WID
+			 , L.L_TITLE
+			 , L.L_CONTENT
+			 , L.L_PRICE
+			 , L.L_THUMBNAIL
+			 , L.L_LESSON_CATEGORY
+		  FROM LESSON_MANAGER LM
+		  JOIN LESSON L
+		    ON LM.LM_ID = L.L_ID
+		 WHERE LM_WID = #{lm_wid}
+	</select>
+	
+	<select id="selectTakenLessons" resultType="CourseDTO">
+		SELECT L.L_ID,
+			   L.L_TITLE,
+			   L.L_WID,
+			   l.L_THUMBNAIL
+		  FROM LESSON_MANAGER LM
+		  JOIN LESSON L
+		    ON L.L_ID = LM.LM_LID 
+		 WHERE LM.LM_WID = #{lm_wid}
+	</select>
+	
+	<select id="selectSearchAll" resultType="CourseDTO" >
+		SELECT  *
+		  FROM 	LESSON
+		 WHERE	(l_wid LIKE '%' || #{keyword} || '%' OR
+				l_title LIKE '%' || #{keyword} || '%')
+	</select>
+	<insert id="insertTakingLesson">
+		INSERT INTO LESSON_MANAGER
+		VALUES(LESSON_MANAGER_SEQ.NEXTVAL,
+				#{lm_lid},
+				#{lm_wid},
+				SYSDATE)
+	</insert>
+</mapper>

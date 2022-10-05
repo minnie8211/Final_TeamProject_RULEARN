@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="joinMapper">
+	<select id="checkId" resultType="_int">
+		SELECT COUNT(*)
+		  FROM ACCOUNT
+		 WHERE AC_ID = #{AC_ID}
+	</select>
+	<select id="selectNickname" resultType="_int">
+		SELECT COUNT(*)
+		  FROM ACCOUNT
+		 WHERE AC_NICKNAME = #{AC_NICKNAME}
+	</select>
+	<select id="selectEmail" resultType="_int">
+		SELECT COUNT(*)
+		  FROM ACCOUNT
+		 WHERE AC_EMAIL = #{AC_EMAIL}
+	</select>
+	<insert id="insertData" parameterType="accountDto">
+		INSERT INTO ACCOUNT(AC_ID, AC_PW, AC_NAME, AC_NICKNAME
+		        , AC_PHONE, AC_EMAIL, AC_ROLE, AC_DATE, AC_GROUP)
+             VALUES(#{AC_ID}, #{AC_PW}, #{AC_NAME}, #{AC_NICKNAME}
+                  , #{AC_PHONE}, #{AC_EMAIL}, 1, SYSDATE, #{AC_GROUP})
+	</insert>
+	<update id="updateMailkey" parameterType="accountDto">
+		UPDATE ACCOUNT
+		   SET AC_MAIL_KEY = #{AC_MAIL_KEY}
+		 WHERE AC_EMAIL = #{AC_EMAIL}
+		   AND AC_ID = #{AC_ID}
+	</update>
+	<update id="updateMailAuth" parameterType="accountDto">
+		UPDATE ACCOUNT
+		   SET AC_MAIL_AUTH = 1
+		 WHERE AC_EMAIL = #{AC_EMAIL}
+		   AND AC_MAIL_KEY = #{AC_MAIL_KEY}
+	</update>
+	<update id="updateKakaoMailAuth" parameterType="accountDto">
+		UPDATE ACCOUNT
+		   SET AC_MAIL_AUTH = 1
+		 WHERE AC_EMAIL = #{AC_EMAIL}
+		   AND AC_GROUP = 2
+	</update>
+	<insert id="insertAgree" parameterType="agreementDto">
+		INSERT INTO AGREEMENT(AG_ID, AG_ACID, AG_TID, AG_ISAGREE)
+		               VALUES(AGREEMENT_SEQ.NEXTVAL, #{ag_acid}, #{ag_tid}, 'Y')
+	</insert>
+</mapper>

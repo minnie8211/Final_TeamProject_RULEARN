@@ -1,0 +1,42 @@
+@charset "UTF-8";
+
+.marg3 {
+	margin-top : 3rem;
+	margin-bottom : 3rem;
+}
+
+.mar-bot1 {
+	margin-bottom : 1rem;
+}
+
+.mar-bot2 {
+	margin-bottom : 2rem;
+}
+
+.m-right1 {
+	margin-right : 1rem;
+}
+
+.wi-5{
+	width: 5rem;
+}
+
+.wi-12 {
+	width: 12rem;
+}
+
+.font1 {
+	font-size: 1rem;
+}
+
+.cke_contents {
+	min-height:550px; 
+}
+
+.hig3 {
+	height: 3rem;
+}
+
+.b-color {
+	color: #3e3f3a;
+}

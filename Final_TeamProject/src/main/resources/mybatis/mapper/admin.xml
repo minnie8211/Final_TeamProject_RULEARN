@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="adminMapper">
+	<select id="selectAll" resultType="accountDto">
+		SELECT A.AC_ID
+		     , A.AC_NAME
+		     , A.AC_NICKNAME
+		     , A.AC_PHONE
+		     , A.AC_EMAIL
+		     , A.AC_ROLE
+		     , R.RO_ID
+		     , R.RO_NAME
+		     , A.AC_GROUP
+		     , AG.ACG_ID
+		     , AG.ACG_NAME
+		     , A.AC_MAIL_AUTH
+		     , A.AC_DATE
+		  FROM ACCOUNT A
+		  JOIN ROLES R
+		    ON A.AC_ROLE = R.RO_ID
+		  JOIN ACCOUNT_GROUP AG
+		    ON A.AC_GROUP = AG.ACG_ID
+		 ORDER BY A.AC_DATE DESC
+	</select>
+	<select id="selectAllRole" resultType="rolesDto">
+		SELECT *
+		  FROM ROLES
+		 ORDER BY RO_ID
+	</select>
+	<select id="selectData" resultType="accountDto">
+		SELECT A.AC_ID
+		     , A.AC_NAME
+		     , A.AC_NICKNAME
+		     , A.AC_PHONE
+		     , A.AC_EMAIL
+		     , A.AC_ROLE
+		     , R.RO_ID
+		     , R.RO_NAME
+		     , A.AC_GROUP
+		     , AG.ACG_ID
+		     , AG.ACG_NAME
+		     , A.AC_MAIL_AUTH
+		     , A.AC_DATE
+		  FROM ACCOUNT A
+		  JOIN ROLES R
+		    ON A.AC_ROLE = R.RO_ID
+		  JOIN ACCOUNT_GROUP AG
+		    ON A.AC_GROUP = AG.ACG_ID
+		 WHERE A.AC_ID = #{AC_ID}
+	</select>
+	<select id="selectAcgSort" resultType="accountDto">
+		SELECT A.AC_ID
+		     , A.AC_NAME
+		     , A.AC_NICKNAME
+		     , A.AC_PHONE
+		     , A.AC_EMAIL
+		     , A.AC_ROLE
+		     , R.RO_ID
+		     , R.RO_NAME
+		     , A.AC_GROUP
+		     , AG.ACG_ID
+		     , AG.ACG_NAME
+		     , A.AC_MAIL_AUTH
+		     , A.AC_DATE
+		  FROM ACCOUNT A
+		  JOIN ROLES R
+		    ON A.AC_ROLE = R.RO_ID
+		  JOIN ACCOUNT_GROUP AG
+		    ON A.AC_GROUP = AG.ACG_ID
+		 WHERE AC_GROUP = #{AC_GROUP}
+		 ORDER BY A.AC_DATE DESC
+	</select>
+	<select id="selectRoSort" resultType="accountDto">
+		SELECT A.AC_ID
+		     , A.AC_NAME
+		     , A.AC_NICKNAME
+		     , A.AC_PHONE
+		     , A.AC_EMAIL
+		     , A.AC_ROLE
+		     , R.RO_ID
+		     , R.RO_NAME
+		     , A.AC_GROUP
+		     , AG.ACG_ID
+		     , AG.ACG_NAME
+		     , A.AC_MAIL_AUTH
+		     , A.AC_DATE
+		  FROM ACCOUNT A
+		  JOIN ROLES R
+		    ON A.AC_ROLE = R.RO_ID
+		  JOIN ACCOUNT_GROUP AG
+		    ON A.AC_GROUP = AG.ACG_ID
+		 WHERE AC_ROLE = #{AC_ROLE}
+		 ORDER BY A.AC_DATE DESC
+	</select>
+	<select id="selectSearch" resultType="accountDto">
+		SELECT A.AC_ID
+		     , A.AC_NAME
+		     , A.AC_NICKNAME
+		     , A.AC_PHONE
+		     , A.AC_EMAIL
+		     , A.AC_ROLE
+		     , R.RO_ID
+		     , R.RO_NAME
+		     , A.AC_GROUP
+		     , AG.ACG_ID
+		     , AG.ACG_NAME
+		     , A.AC_MAIL_AUTH
+		     , A.AC_DATE
+		  FROM ACCOUNT A
+		  JOIN ROLES R
+		    ON A.AC_ROLE = R.RO_ID
+		  JOIN ACCOUNT_GROUP AG
+		    ON A.AC_GROUP = AG.ACG_ID
+		 WHERE A.AC_ID LIKE '%' || #{search} || '%'
+		    OR A.AC_NAME LIKE '%' || #{search} || '%'
+		    OR  A.AC_NICKNAME LIKE '%' || #{search} || '%'
+		    OR  A.AC_PHONE LIKE '%' || #{search} || '%'
+		    OR  A.AC_EMAIL LIKE '%' || #{search} || '%'
+		 ORDER BY A.AC_DATE DESC
+	</select>
+	<update id="updateMemberData" parameterType="accountDto">
+		UPDATE ACCOUNT
+		   SET AC_ROLE = #{AC_ROLE}
+		 WHERE AC_ID = #{AC_ID}
+		   AND AC_EMAIL = #{AC_EMAIL}
+		   AND AC_MAIL_AUTH = 1
+	</update>
+	<delete id="deleteMemberData" parameterType="accountDto">
+		DELETE FROM ACCOUNT 
+		 WHERE AC_ID = #{AC_ID}
+ 	</delete>
+	
+	<select id="selectPaymentAll" resultType="paymentDto">
+		SELECT P_TID
+		     , P_ACID
+		     , A.AC_NAME
+		     , P_ITEM_NAME
+		     , P_ITEM_CODE
+		     , P_TOTAL_AMOUNT
+		     , P_APPROVED_AT
+		  FROM PAYMENT P
+		  JOIN ACCOUNT A
+		    ON P.P_ACID = A.AC_ID
+		 ORDER BY P.P_APPROVED_AT DESC
+	</select>
+	<select id="selectPaymentSearch" resultType="paymentDto">
+		SELECT P.P_TID
+		     , P.P_ACID
+		     , A.AC_NAME
+		     , P.P_ITEM_NAME
+		     , P.P_ITEM_CODE
+		     , P.P_TOTAL_AMOUNT
+		     , P.P_APPROVED_AT
+		  FROM PAYMENT P
+		  JOIN ACCOUNT A
+		    ON P.P_ACID = A.AC_ID
+		 WHERE P.P_TID LIKE '%' || #{search} || '%'
+		    OR A.AC_NAME LIKE '%' || #{search} || '%'
+		    OR P.P_ITEM_NAME LIKE '%' || #{search} || '%'
+		 ORDER BY P.P_APPROVED_AT DESC
+	</select>
+</mapper>

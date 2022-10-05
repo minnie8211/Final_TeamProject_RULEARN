@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="studyCommentMapper">
+	<select id="getNextSeq" resultType="_int">
+		SELECT STUDY_COMMENT_SEQ.NEXTVAL FROM DUAL
+	</select>
+	
+	<select id="selectDatas" resultType="studyCommentDto">
+		SELECT SC.SC_ID
+			 , SC.SC_WID
+			 , A.AC_NICKNAME AS sc_wName
+			 , SC.SC_BID
+			 , SC.SC_GID
+			 , SC.SC_SORT
+			 , SC.SC_DEPTH
+		 	 , SC.SC_CHILD
+			 , SC.SC_PARENTS
+			 , SC.SC_CONTENT
+			 , SC.SC_DELETED
+			 , SC.SC_LIKE
+			 , SC.SC_DATE
+		  FROM STUDY_COMMENT SC
+		  JOIN ACCOUNT A
+		    ON SC.SC_WID = A.AC_ID
+		 WHERE SC.SC_BID = #{id}
+		 ORDER BY SC.SC_GID, SC.SC_SORT
+	</select>
+	
+	<select id="selectData" resultType="studyCommentDto">
+		SELECT SC.SC_ID
+			 , SC.SC_WID
+			 , A.AC_NICKNAME AS sc_wName
+			 , SC.SC_BID
+			 , SC.SC_GID
+			 , SC.SC_SORT
+			 , SC.SC_DEPTH
+			 , SC.SC_CONTENT
+			 , SC.SC_DELETED
+			 , SC.SC_LIKE
+			 , SC.SC_DATE
+		  FROM STUDY_COMMENT SC
+		  JOIN ACCOUNT A
+		    ON SC.SC_WID = A.AC_ID
+		 WHERE SC.SC_ID = #{id}
+	</select>
+	
+	<insert id="insertData" parameterType="studyCommentDto">
+		INSERT INTO STUDY_COMMENT(SC_ID, SC_WID, SC_BID
+									, SC_GID, SC_SORT, SC_DEPTH
+									, SC_CHILD ,SC_PARENTS
+									, SC_CONTENT, SC_DELETED
+									, SC_LIKE, SC_DATE)
+			VALUES(#{sc_id}, #{sc_wId}, #{sc_bId}
+				  , #{sc_gId} , #{sc_sort} , #{sc_depth}
+				  , #{sc_child} , #{sc_parents}
+				  , #{sc_content}, 'N'
+				  , 0, SYSDATE)
+	</insert>
+	
+	<select id="maxSort" parameterType="_int" resultType="_int">
+		SELECT NVL(MAX(SC_SORT),0) + 1
+		  FROM STUDY_COMMENT
+		 WHERE SC_GID = #{id}
+	</select>
+	
+	<update id="updateSort" parameterType="studyCommentDto">
+		UPDATE STUDY_COMMENT
+		   SET SC_SORT = SC_SORT + 1
+		 WHERE SC_GID = #{sc_gId}
+		   AND SC_SORT > #{sc_sort}
+	</update>
+	
+	<select id="selectSort" resultType="studyCommentDto">
+		SELECT *
+		  FROM STUDY_COMMENT
+		 WHERE SC_GID = #{sc_gId}
+		 ORDER BY SC_SORT
+	</select>
+	
+	<select id="maxChildSort" resultType="_int">
+		SELECT SC_SORT + SC_CHILD
+		  FROM STUDY_COMMENT
+		 WHERE SC_ID = #{id}
+	</select>
+	
+	<select id="totalChild" resultType="_int">
+	 	SELECT COUNT(*)
+	      FROM STUDY_COMMENT
+	     WHERE SC_PARENTS = #{id}
+	</select>
+
+	<update id="updateChild" parameterType="studyCommentDto">
+		UPDATE STUDY_COMMENT
+		   SET SC_CHILD = #{sc_child}
+		 WHERE SC_ID = #{sc_id}
+	</update>
+	
+	<update id="deleteUpData" parameterType="studyCommentDto">
+		UPDATE STUDY_COMMENT
+		   SET SC_DELETED = 'Y'
+		 WHERE SC_ID = #{sc_id}
+	</update>
+	
+	<delete id="deleteData">
+		DELETE FROM STUDY_COMMENT
+		 WHERE SC_BID = #{sb_bId}
+	</delete>
+	
+	<update id="updateData" parameterType="studyCommentDto">
+		UPDATE STUDY_COMMENT
+		   SET SC_CONTENT = #{sc_content}
+		 WHERE SC_ID = #{sc_id}
+	</update>
+	
+	<!-- 마이페이지 전용 댓글 조회 -->
+	<select id="selectCommentData" parameterType="_int" resultType="studyCommentDto">
+		SELECT SC.SC_ID
+			 , SC.SC_WID
+			 , SC.SC_BID
+			 , SC.SC_GID
+			 , SC.SC_SORT
+			 , SC.SC_DEPTH
+			 , SC.SC_CONTENT
+			 , SC.SC_DELETED
+			 , SC.SC_LIKE
+			 , SC.SC_DATE
+		  FROM STUDY_COMMENT SC
+		  JOIN STUDY_BOARD SB
+		    ON SC.SC_BID = SB.SB_BID
+		  JOIN CATEGORY C
+	 	    ON SB.SB_CATID = C.CAT_ID
+		 WHERE C.CAT_ID = #{cat_id}
+	</select>
+	
+	<select id="myPageSelectCommentData" parameterType="Map" resultType="studyCommentDto">
+		SELECT SC.SC_ID
+			 , SC.SC_WID
+			 , SC.SC_BID
+			 , SC.SC_GID
+			 , SC.SC_SORT
+			 , SC.SC_DEPTH
+			 , SC.SC_CONTENT
+			 , SC.SC_DELETED
+			 , SC.SC_LIKE
+			 , SC.SC_DATE
+		  FROM STUDY_COMMENT SC
+		  JOIN STUDY_BOARD SB
+		    ON SC.SC_BID = SB.SB_BID
+		  JOIN CATEGORY C
+	 	    ON SB.SB_CATID = C.CAT_ID
+		 WHERE C.CAT_ID = #{CATEGORY}
+		   AND SC.SC_WID = #{ID}
+	</select>
+	
+	<select id="selectCommentStatics" parameterType="studyCommentStaticsDto"
+		resultType="studyCommentStaticsDto">
+		SELECT SCS_ID
+			 , SCS_WID
+			 , SCS_CID
+			 , SCS_LIKED				
+		  FROM STUDY_COMMENT_STATICS
+		 WHERE SCS_WID = #{scs_wId}
+		   AND SCS_CID = #{scs_cId}
+	</select>
+	
+	<insert id="insertCommentStatics" parameterType="studyCommentStaticsDto">
+		INSERT INTO STUDY_COMMENT_STATICS
+			VALUES(STUDY_COMMENT_SEQ.NEXTVAL
+				 , #{scs_wId}, #{scs_cId}, 'Y')
+	</insert>
+	
+	<update id="updateCommentStaticsLike" parameterType="studyCommentStaticsDto">
+		UPDATE STUDY_COMMENT_STATICS
+		<choose>
+			<when test="scs_liked">
+				SET SCS_LIKED = 'Y'
+			</when>
+			<otherwise>
+				SET SCS_LIKED = 'N'
+			</otherwise>
+		</choose>
+		 WHERE SCS_ID = #{scs_id}
+	</update>
+	
+	<update id="updateCommentLike" parameterType="studyCommentDto">
+		UPDATE STUDY_COMMENT
+		   SET SC_LIKE = #{sc_like}
+		 WHERE SC_ID = #{sc_id}
+	</update>
+	
+	<select id="selectBoardID" resultType="studyCommentIdDto">
+		SELECT DISTINCT
+			   SC_BID
+		  FROM STUDY_COMMENT
+		 WHERE SC_WID = #{sc_wId}
+		   AND SC_DELETED = 'N'
+		 ORDER BY SC_BID ASC
+	</select>
+</mapper>
+
+
+
