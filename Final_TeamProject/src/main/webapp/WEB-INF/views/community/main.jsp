@@ -76,9 +76,9 @@
 	
 		<!-- 전체 게시판 -->
 		<div>
-		<table class="table table-hover mar-bot3 bor-col">
+		<table id="contents" class="table table-hover mar-bot3 bor-col">
 				<colgroup>
-					<col width="140 style=" "/>
+					<col width="140" style=""/>
 					<col width="" style="" />
 					<col width="200" style="" />
 					<col width="200" style="" />
@@ -225,7 +225,14 @@ function pageCountUrl(count) {
 	location.href = url + count;
 }
 
-	
+var search = "${searchValue}";
+if(search !== "") {
+	$("#contents:contains('"+search+"')").each(function() {
+		var regex = new RegExp(search, 'gi');
+		$(this).html($(this).html().replace(regex, "<span style='color:red;'>"+search+"</span>"));
+	});
+};
+
 </script>
 
 </body>

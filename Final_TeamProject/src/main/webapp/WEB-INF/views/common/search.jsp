@@ -57,11 +57,14 @@
 			통합 검색
 		</div>
 	</div>
-		<section class="container mt-4 m-height" id="contents">
+		<section class="container mt-4 m-height" >
+			<div class="text-center contents">
+				"${search}" 검색 결과입니다.
+			</div>
 			<div class="board_CAT">
 				커뮤니티
 			</div>
-			<table class="table table-hover bor-col mt-4 mb-3">
+			<table class="table table-hover bor-col mt-4 mb-3 contents">
 				 <colgroup>
 				    <col width="140 style=""/>
 				    <col width="" style="" />
@@ -110,7 +113,7 @@
 			<div class="board_CAT">
 				스터디
 			</div>
-			<table class="table table-hover bor-col mt-4 mb-3">
+			<table class="table table-hover bor-col mt-4 mb-3 contents">
 				 <colgroup>
 				    <col width="120" style=""/>
 				    <col width="" style="" />
@@ -166,7 +169,7 @@
 				강의
 			</div>
 			<c:if test="${not empty courseSearch}">
-				<div class="container-fluid">
+				<div class="container-fluid contents">
 					<div class="row mt-4 mb-4">
 						<c:forEach items="${courseSearch}" var="courseData">
 							<c:url var="courseDetailUrl" value="/course/detail">
@@ -224,7 +227,7 @@
 				</div>
 			</c:if>
 			<c:if test="${empty courseSearch}">
-				<div class="txt-center pd100 mt-5 search_box">
+				<div class="txt-center pd100 mt-5 search_box contents">
 					"${search}" 검색된 내용이 없습니다.
 				</div>	                
 			</c:if>
@@ -238,5 +241,12 @@
 	<footer>
 		<%@ include file="../module/footer.jsp" %>
 	</footer>
+	<script type="text/javascript">
+		var search = "${search}";
+		$(".contents:contains('"+search+"')").each(function() {
+			var regex = new RegExp(search, 'gi');
+			$(this).html($(this).html().replace(regex, "<span style='color:red;'>"+search+"</span>"));
+		});
+	</script>
 </body>
 </html>
