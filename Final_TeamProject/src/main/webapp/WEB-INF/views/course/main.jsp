@@ -137,7 +137,7 @@
 						</div>	                
 	                </c:when>
 	                <c:otherwise>
-		                <div class="container-fluid">
+		                <div id="contents" class="container-fluid">
 		                    <div class="row mb-2">
 		                    	<c:forEach items="${courseDatas}" var="data">
 			                    	<c:url var="courseDetailUrl" value="/course/detail">
@@ -226,6 +226,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
         crossorigin="anonymous"></script>
+	<script type="text/javascript">
+	var search = "${search}";
+	if(search !== "") {
+		$("#contents:contains('"+search+"')").each(function() {
+			var regex = new RegExp(search, 'gi');
+			$(this).html($(this).html().replace(regex, "<span style='color:red;'>"+search+"</span>"));
+		});
+	};
+	</script>
+        
 </body>
 
 </html>

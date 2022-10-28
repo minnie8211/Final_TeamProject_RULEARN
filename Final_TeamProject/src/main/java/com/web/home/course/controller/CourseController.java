@@ -29,6 +29,7 @@ public class CourseController {
 		List courseDatas;
 		if(lessonSearch != null) {
 			courseDatas = service.getSearchAll(lessonSearch);
+			model.addAttribute("search", lessonSearch);
 			if(courseDatas.size() == 0) {
 				model.addAttribute("foundNothing", 0);
 			}
